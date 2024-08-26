@@ -1,0 +1,163 @@
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prata</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #101010;
+            color: white;
+            font-family: 'Roboto', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        
+        h1 {
+            font-size: 3em;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #3d-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Estilo da seta */
+        .arrow {
+            position: absolute;
+            bottom: 20px; /* Distância da parte inferior da tela */
+            font-size: 2em;
+            color: white;
+            opacity: 0.7;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .arrow a {
+            text-decoration: none;
+            color: inherit; /* Herda a cor da seta */
+            display: block;
+            font-size: 2em; /* Tamanho da seta */
+        }
+    </style>
+</head>
+<body>
+    <h1>Prata</h1>
+    <div id="3d-container"></div>
+    <div class="arrow">
+        <a href="hidrogenio.html">↑</a> <!-- Link para a página do Hidrogênio -->
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js"></script>
+    <script>
+        // Configuração da cena
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('3d-container').appendChild(renderer.domElement);
+
+        // Adicionar iluminação
+        const ambientLight = new THREE.AmbientLight(0x404040, 1.0); // Luz ambiente
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 1.5, 100);
+        pointLight.position.set(2, 2, 2);
+        scene.add(pointLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // Molécula de Prata: Núcleo e elétrons
+        const nucleusGeometry = new THREE.SphereGeometry(0.25, 32, 32);
+        const nucleusMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xc0c0c0, // Cor prateada
+            emissive: 0xc0c0c0,
+            metalness: 1.0,
+            roughness: 0.2 
+        });
+        const nucleus = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
+        scene.add(nucleus);
+
+        const electronGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+        const electronMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x0000ff, // Cor azul para elétrons
+            emissive: 0x0000ff,
+            metalness: 0.5,
+            roughness: 0.5 
+        });
+        const electron1 = new THREE.Mesh(electronGeometry, electronMaterial);
+        const electron2 = new THREE.Mesh(electronGeometry, electronMaterial);
+        const electron3 = new THREE.Mesh(electronGeometry, electronMaterial);
+        scene.add(electron1);
+        scene.add(electron2);
+        scene.add(electron3);
+
+        // Adicionar a linha de órbita
+        const radius1 = 0.7;
+        const radius2 = 1.2;
+        const orbitGeometry1 = new THREE.RingGeometry(radius1 - 0.01, radius1 + 0.01, 64);
+        const orbitGeometry2 = new THREE.RingGeometry(radius2 - 0.01, radius2 + 0.01, 64);
+        const orbitMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xaaaaaa, 
+            side: THREE.DoubleSide,
+            opacity: 0.7,
+            transparent: true
+        });
+        const orbit1 = new THREE.Mesh(orbitGeometry1, orbitMaterial);
+        const orbit2 = new THREE.Mesh(orbitGeometry2, orbitMaterial);
+        orbit1.rotation.x = Math.PI / 2; // Rotacionar para ficar plano
+        orbit2.rotation.x = Math.PI / 2; // Rotacionar para ficar plano
+        scene.add(orbit1);
+        scene.add(orbit2);
+
+        // Animação dos elétrons girando em torno do núcleo
+        let angle1 = 0;
+        let angle2 = Math.PI;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            angle1 += 0.02; // Aumenta a velocidade de rotação do primeiro elétron
+            angle2 += 0.015; // Aumenta a velocidade de rotação do segundo e terceiro elétrons
+
+            electron1.position.x = radius1 * Math.cos(angle1);
+            electron1.position.z = radius1 * Math.sin(angle1);
+
+            electron2.position.x = radius2 * Math.cos(angle2);
+            electron2.position.z = radius2 * Math.sin(angle2);
+
+            electron3.position.x = -radius2 * Math.cos(angle2);
+            electron3.position.z = -radius2 * Math.sin(angle2);
+
+            renderer.render(scene, camera);
+        }
+
+        // Ajustar a posição da câmera
+        camera.position.z = 3;
+        camera.position.y = 1;
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+        animate();
+
+        // Ajustar o tamanho da tela quando a janela for redimensionada
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
